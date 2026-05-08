@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Checkout - Panini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: #f5f5f5; padding: 15px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 20px; padding: 20px; }
+        .logo-top { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .logo-top h1 { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #e31837, #c4122e); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .btn-back { color: #e31837; text-decoration: none; display: inline-block; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { .grid { grid-template-columns: 1fr 380px; } }
+        h2 { color: #e31837; margin-bottom: 15px; font-size: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 12px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 14px; }
+        input:focus { outline: none; border-color: #e31837; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .row-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+        .summary { background: #fafafa; border-radius: 20px; padding: 20px; position: sticky; top: 20px; }
+        .cart-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .cart-item-img { width: 50px; height: 50px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .cart-item-img img { width: 100%; height: 100%; object-fit: contain; }
+        .cart-item-info { flex: 1; }
+        .cart-item-title { font-size: 13px; font-weight: 600; }
+        .cart-item-price { font-size: 12px; color: #e31837; font-weight: 700; }
+        .total { font-size: 24px; font-weight: 800; text-align: right; padding: 15px 0; border-top: 2px solid #eee; margin: 15px 0; }
+        .payment-options { display: flex; gap: 15px; margin: 20px 0; }
+        .payment-option { flex: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 16px; text-align: center; cursor: pointer; transition: 0.3s; background: white; }
+        .payment-option.selected { border-color: #e31837; background: #fff5f5; }
+        .payment-option i { font-size: 28px; display: block; margin-bottom: 8px; }
+        .btn-pix { background: #28a745; color: white; border: none; padding: 15px; border-radius: 30px; font-weight: 800; width: 100%; cursor: pointer; font-size: 16px; }
+        .btn-pix.hidden { display: none; }
+        .pix-area { text-align: center; margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 16px; display: none; }
+        .qr-frame { background: white; padding: 20px; border-radius: 20px; display: inline-block; margin: 10px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .qr-frame img { max-width: 220px; height: auto; }
+        .pix-code-container { background: white; padding: 15px; border-radius: 16px; margin: 15px 0; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; justify-content: space-between; }
+        .pix-code { font-family: monospace; font-size: 13px; word-break: break-all; flex: 1; max-height: 120px; overflow-y: auto; background: #f8f9fa; padding: 12px; border-radius: 8px; }
+        .btn-copy { background: #e31837; color: white; border: none; padding: 12px 28px; border-radius: 40px; cursor: pointer; font-weight: 700; font-size: 14px; transition: 0.3s; }
+        .btn-payment-made { background: #17a2b8; color: white; border: none; padding: 14px; border-radius: 30px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 15px; font-size: 16px; }
+        .error-msg { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 12px; margin-top: 15px; display: none; }
+        .payment-status { margin-top: 15px; padding: 10px; border-radius: 12px; display: none; }
+        .payment-status.checking { background: #cce5ff; color: #004085; display: block; }
+        .payment-status.paid { background: #d4edda; color: #155724; display: block; }
+        .payment-status.not-paid { background: #fff3cd; color: #856404; display: block; }
+        .loading { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cep-loading { font-size: 12px; color: #28a745; margin-left: 10px; }
+        .order-bump { background: linear-gradient(135deg, #fff9e6, #fff0d4); border: 2px solid #ffc107; border-radius: 16px; padding: 15px; margin: 15px 0; cursor: pointer; transition: 0.3s; }
+        .order-bump.selected { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-color: #28a745; }
+        .order-bump-title { font-weight: 800; color: #e31837; margin-bottom: 5px; }
+        .order-bump-price { font-size: 18px; font-weight: 800; color: #28a745; }
+        .footer-security { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; text-align: center; }
+        .security-badges { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .security-badge { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #555; }
+        .security-badge i { font-size: 18px; color: #28a745; }
+        .modal-card { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-card.active { display: flex; }
+        .modal-card-content { background: white; border-radius: 20px; max-width: 350px; width: 90%; padding: 25px; text-align: center; }
+        @media (max-width: 480px) { .pix-code-container { flex-direction: column; align-items: stretch; } .btn-copy { justify-content: center; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-top"><h1>PANINI</h1><p>FIGURINHAS OFICIAIS</p></div>
+        <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+        <div class="grid">
+            <div>
+                <h2>📦 Dados para entrega</h2>
+                <input type="text" id="nome" placeholder="Nome completo">
+                <div class="row"><input type="email" id="email" placeholder="Email"><input type="tel" id="fone" placeholder="Telefone com DDD"></div>
+                <div class="row"><input type="text" id="cpf" placeholder="CPF (apenas números)" maxlength="11"><div class="row-3"><input type="text" id="cep" placeholder="CEP" maxlength="9"><span id="cepStatus" style="font-size:12px; color:#28a745; display:none;">🔍 Buscando...</span></div></div>
+                <input type="text" id="endereco" placeholder="Endereço" readonly style="background:#f0f0f0;">
+                <div class="row"><input type="text" id="numero" placeholder="Número"><input type="text" id="complemento" placeholder="Complemento"></div>
+                <div class="row"><input type="text" id="bairro" placeholder="Bairro" readonly style="background:#f0f0f0;"><input type="text" id="cidade" placeholder="Cidade" readonly style="background:#f0f0f0;"></div>
+                <input type="text" id="estado" placeholder="UF" maxlength="2" readonly style="background:#f0f0f0;">
+                
+                <div class="order-bump" id="orderBump" onclick="toggleOrderBump()">
+                    <div class="order-bump-title">🔥 OFERTA IMPERDÍVEL!</div>
+                    <div>Adicione +10 figurinhas extras por apenas <span class="order-bump-price">R$ 9,90</span></div>
+                    <small style="color:#999;">(Clique para adicionar/remover)</small>
+                </div>
+            </div>
+            <div class="summary">
+                <h3>🛒 Resumo do pedido</h3>
+                <div id="cartItems"></div>
+                <div class="total" id="total">💰 Total: R$ 0,00</div>
+                
+                <div class="payment-options">
+                    <div class="payment-option selected" id="optionPix" onclick="selecionarPagamento('pix')">
+                        <i class="fas fa-qrcode"></i> PIX
+                    </div>
+                    <div class="payment-option" id="optionCard" onclick="mostrarAvisoCartao()">
+                        <i class="fas fa-credit-card"></i> Cartão
+                    </div>
+                </div>
+                
+                <button class="btn-pix" id="btnGerarPix" onclick="gerarPix()">💰 GERAR PIX</button>
+                
+                <div id="pixArea" class="pix-area" style="display: none;">
+                    <div class="qr-frame"><img id="qrCodeImage" src="" alt="QR Code PIX"></div>
+                    <div class="pix-code-container">
+                        <div class="pix-code" id="pixCode"></div>
+                        <button class="btn-copy" onclick="copiarPix()"><i class="fas fa-copy"></i> 📋 Copiar código</button>
+                    </div>
+                    <button class="btn-payment-made" id="btnPaymentMade" onclick="verificarPagamentoManual()">✅ JÁ REALIZEI O PAGAMENTO</button>
+                    <div id="autoCheckStatus" class="payment-status"></div>
+                    <div id="errorMsg" class="error-msg"></div>
+                </div>
+                
+                <div class="footer-security">
+                    <div class="security-badges">
+                        <div class="security-badge"><i class="fas fa-lock"></i> Pagamento Seguro</div>
+                        <div class="security-badge"><i class="fas fa-shield-alt"></i> Protegido</div>
+                        <div class="security-badge"><i class="fas fa-credit-card"></i> Criptografado</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="modalCard" class="modal-card">
+        <div class="modal-card-content">
+            <i class="fas fa-tag" style="font-size: 40px; color: #e31837;"></i>
+            <h3 style="margin: 15px 0;">Promoção Válida!</h3>
+            <p>O desconto é válido <strong>somente para pagamento via PIX</strong>.</p>
+            <p style="margin: 10px 0;">Você será redirecionado para o pagamento por PIX.</p>
+            <button onclick="fecharModalCard()" style="background: #e31837; color: white; border: none; padding: 10px 20px; border-radius: 30px; margin-top: 15px; cursor: pointer;">Entendi, continuar</button>
+        </div>
+    </div>
+
+    <script>
+        // ========== VARIÁVEIS GLOBAIS ==========
+        let cart = JSON.parse(localStorage.getItem('panini_cart') || '[]');
+        let currentOrderId = '';
+        let currentPixCode = '';
+        let currentTotal = 0;
+        let bumpAdded = false;
+        let transactionId = '';
+        let autoCheckInterval = null;
+        let paymentConfirmed = false;
+
+        // ========== CEP AUTOMÁTICO (VIA CEP) ==========
+        document.getElementById('cep').addEventListener('blur', async function() {
+            let cep = this.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                const statusSpan = document.getElementById('cepStatus');
+                statusSpan.style.display = 'inline';
+                statusSpan.innerHTML = '🔍 Buscando endereço...';
+                
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+                    
+                    if (!data.erro) {
+                        document.getElementById('endereco').value = data.logradouro || '';
+                        document.getElementById('bairro').value = data.bairro || '';
+                        document.getElementById('cidade').value = data.localidade || '';
+                        document.getElementById('estado').value = data.uf || '';
+                        statusSpan.innerHTML = '✅ Endereço encontrado!';
+                        setTimeout(() => { statusSpan.style.display = 'none'; }, 2000);
+                    } else {
+                        statusSpan.innerHTML = '❌ CEP não encontrado';
+                        setTimeout(() => { statusSpan.style.display = 'none'; }, 2000);
+                    }
+                } catch (error) {
+                    statusSpan.innerHTML = '❌ Erro ao buscar CEP';
+                    setTimeout(() => { statusSpan.style.display = 'none'; }, 2000);
+                }
+            }
+        });
+
+        // ========== FUNÇÕES DO CARRINHO ==========
+        function toggleOrderBump() {
+            bumpAdded = !bumpAdded;
+            const bumpDiv = document.getElementById('orderBump');
+            if (bumpAdded) bumpDiv.classList.add('selected');
+            else bumpDiv.classList.remove('selected');
+            renderCart();
+        }
+
+        function renderCart() {
+            let total = 0, html = '';
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                html += `<div class="cart-item"><div class="cart-item-img"><img src="${item.image}" onerror="this.src='https://placehold.co/50x50/e31837/white?text=PN'"></div><div class="cart-item-info"><div class="cart-item-title">${item.name}</div><div class="cart-item-price">R$ ${item.price.toFixed(2)}</div></div><div>${item.qty}x</div></div>`;
+            });
+            if (bumpAdded) {
+                total += 9.90;
+                html += `<div class="cart-item" style="background:#e8f5e9;"><div class="cart-item-img"><i class="fas fa-gift" style="font-size:24px;"></i></div><div class="cart-item-info"><div class="cart-item-title">🔥 Figurinhas Extras (10 unidades)</div><div class="cart-item-price">R$ 9.90</div></div><div>1x</div></div>`;
+            }
+            document.getElementById('cartItems').innerHTML = html || '<p>Carrinho vazio</p>';
+            document.getElementById('total').innerHTML = `💰 Total: R$ ${total.toFixed(2)}`;
+            return total;
+        }
+
+        function copiarPix() {
+            if (currentPixCode) {
+                navigator.clipboard.writeText(currentPixCode);
+                const btnCopy = document.querySelector('.btn-copy');
+                const originalText = btnCopy.innerHTML;
+                btnCopy.innerHTML = '✅ Copiado!';
+                setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
+            }
+        }
+
+        function selecionarPagamento(tipo) {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            if (tipo === 'pix') document.getElementById('optionPix').classList.add('selected');
+        }
+
+        function mostrarAvisoCartao() {
+            document.getElementById('modalCard').classList.add('active');
+        }
+
+        function fecharModalCard() {
+            document.getElementById('modalCard').classList.remove('active');
+            document.getElementById('optionPix').classList.add('selected');
+        }
+
+        function pararAutoCheck() {
+            if (autoCheckInterval) { clearInterval(autoCheckInterval); autoCheckInterval = null; }
+        }
+
+        async function verificarPagamentoAuto() {
+            if (!transactionId || paymentConfirmed) return;
+            try {
+                const response = await fetch(`verificar_pagamento.php?transaction_id=${transactionId}&_=${Date.now()}`);
+                const data = await response.json();
+                if (data.status === 'PAID') {
+                    paymentConfirmed = true;
+                    pararAutoCheck();
+                    document.getElementById('autoCheckStatus').className = 'payment-status paid';
+                    document.getElementById('autoCheckStatus').innerHTML = '✅ Pagamento confirmado! Redirecionando...';
+                    let orders = JSON.parse(localStorage.getItem('panini_orders') || '[]');
+                    orders = orders.map(ord => ord.id === currentOrderId ? { ...ord, status: 'paid' } : ord);
+                    localStorage.setItem('panini_orders', JSON.stringify(orders));
+                    localStorage.setItem('orderData', JSON.stringify({ total: currentTotal, orderId: currentOrderId }));
+                    setTimeout(() => { window.location.href = 'obrigado.html'; }, 1500);
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function verificarPagamentoManual() {
+            if (!transactionId) {
+                document.getElementById('autoCheckStatus').className = 'payment-status not-paid';
+                document.getElementById('autoCheckStatus').innerHTML = '⚠️ Nenhum PIX foi gerado ainda.';
+                return;
+            }
+            if (paymentConfirmed) { alert('Pagamento já confirmado!'); window.location.href = 'obrigado.html'; return; }
+            
+            const btn = document.getElementById('btnPaymentMade');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Verificando...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`verificar_pagamento.php?transaction_id=${transactionId}&_=${Date.now()}`);
+                const data = await response.json();
+                if (data.status === 'PAID') {
+                    paymentConfirmed = true;
+                    pararAutoCheck();
+                    document.getElementById('autoCheckStatus').className = 'payment-status paid';
+                    document.getElementById('autoCheckStatus').innerHTML = '✅ Pagamento confirmado! Redirecionando...';
+                    let orders = JSON.parse(localStorage.getItem('panini_orders') || '[]');
+                    orders = orders.map(ord => ord.id === currentOrderId ? { ...ord, status: 'paid' } : ord);
+                    localStorage.setItem('panini_orders', JSON.stringify(orders));
+                    localStorage.setItem('orderData', JSON.stringify({ total: currentTotal, orderId: currentOrderId }));
+                    setTimeout(() => { window.location.href = 'obrigado.html'; }, 1500);
+                } else {
+                    document.getElementById('autoCheckStatus').className = 'payment-status not-paid';
+                    document.getElementById('autoCheckStatus').innerHTML = '⚠️ Pagamento ainda não identificado. Aguarde e tente novamente.';
+                }
+            } catch (error) {
+                document.getElementById('autoCheckStatus').className = 'payment-status not-paid';
+                document.getElementById('autoCheckStatus').innerHTML = '❌ Erro ao verificar. Tente novamente.';
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function gerarPix() {
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('fone').value.trim();
+            const cpf = document.getElementById('cpf').value.trim();
+            const endereco = document.getElementById('endereco').value.trim();
+            
+            if (!nome || !email || !phone || !cpf) { alert('Preencha todos os campos!'); return; }
+            if (!endereco) { alert('Preencha o CEP para buscar o endereço!'); return; }
+            if (cart.length === 0) { alert('Carrinho vazio!'); return; }
+            
+            currentTotal = renderCart();
+            const items = cart.map(i => ({ name: i.name, quantity: i.qty, unit_price: i.price * 100 }));
+            if (bumpAdded) {
+                items.push({ name: 'Figurinhas Extras (10 unidades)', unit_price: 990, quantity: 1 });
+                currentTotal += 9.90;
+            }
+            
+            const btn = document.getElementById('btnGerarPix');
+            btn.innerHTML = '<span class="loading"></span> Gerando PIX...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('processar_pix.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ total: currentTotal, customer: { name: nome, email: email, phone: phone, document: cpf }, items: items })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentOrderId = data.order_id;
+                    currentPixCode = data.pix_code || data.qr_code;
+                    transactionId = data.transaction_id;
+                    
+                    document.getElementById('pixArea').style.display = 'block';
+                    document.getElementById('qrCodeImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentPixCode)}`;
+                    document.getElementById('pixCode').innerText = currentPixCode;
+                    document.getElementById('btnGerarPix').style.display = 'none';
+                    document.querySelector('.payment-options').style.display = 'none';
+                    
+                    // Salvar pedido no admin
+                    let orders = JSON.parse(localStorage.getItem('panini_orders') || '[]');
+                    orders.push({ id: currentOrderId, customer: nome, email: email, total: currentTotal.toFixed(2), date: new Date().toLocaleString(), status: 'pending', transaction_id: transactionId });
+                    localStorage.setItem('panini_orders', JSON.stringify(orders));
+                    
+                    iniciarAutoCheck();
+                    document.getElementById('autoCheckStatus').className = 'payment-status checking';
+                    document.getElementById('autoCheckStatus').innerHTML = '⏳ Aguardando confirmação do pagamento...';
+                } else {
+                    document.getElementById('errorMsg').innerHTML = '❌ ' + (data.error || 'Erro ao gerar PIX');
+                    document.getElementById('errorMsg').style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('errorMsg').innerHTML = '❌ Erro de conexão: ' + error.message;
+                document.getElementById('errorMsg').style.display = 'block';
+            } finally {
+                btn.innerHTML = '💰 GERAR PIX';
+                btn.disabled = false;
+            }
+        }
+        
+        function iniciarAutoCheck() {
+            pararAutoCheck();
+            autoCheckInterval = setInterval(verificarPagamentoAuto, 5000);
+        }
+        
+        renderCart();
+        
+        window.addEventListener('beforeunload', () => pararAutoCheck());
+    </script>
+</body>
+</html>

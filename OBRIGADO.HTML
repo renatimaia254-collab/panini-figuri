@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Pedido Confirmado - Panini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .thankyou-card { background: white; border-radius: 32px; max-width: 550px; width: 100%; padding: 40px 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); animation: fadeInUp 0.6s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .check-icon { width: 80px; height: 80px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; animation: pulse 0.8s ease; }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .check-icon i { font-size: 45px; color: white; }
+        h1 { font-size: 28px; color: #1a1a1a; margin-bottom: 10px; }
+        .order-id { background: #f0f0f0; padding: 12px; border-radius: 16px; font-family: monospace; font-size: 14px; margin: 20px 0; display: inline-block; }
+        .info-box { background: #f8f9fa; border-radius: 20px; padding: 20px; margin: 25px 0; text-align: left; }
+        .info-box p { margin: 10px 0; color: #555; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .info-box i { width: 25px; color: #e31837; font-size: 16px; }
+        .btn-continue { background: #e31837; color: white; border: none; padding: 14px 30px; border-radius: 40px; font-weight: 700; font-size: 16px; cursor: pointer; text-decoration: none; display: inline-block; transition: 0.3s; margin-top: 10px; }
+        .btn-continue:hover { background: #c4122e; transform: translateY(-2px); }
+        .logo { margin-bottom: 20px; }
+        .logo h2 { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #e31837, #c4122e); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .footer { margin-top: 30px; font-size: 12px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="thankyou-card">
+        <div class="logo"><h2>PANINI</h2><p style="font-size: 10px;">FIGURINHAS OFICIAIS</p></div>
+        <div class="check-icon"><i class="fas fa-check"></i></div>
+        <h1>Pagamento confirmado! 🎉</h1>
+        <p style="color: #666; margin-top: 5px;">Seu pedido foi processado com sucesso</p>
+        <div class="order-id" id="orderId">CARREGANDO...</div>
+        <div class="info-box">
+            <p><i class="fas fa-envelope"></i> <strong>Enviamos um e-mail com a confirmação</strong></p>
+            <p><i class="fas fa-clock"></i> Prazo de entrega: <strong>5 a 10 dias úteis</strong></p>
+            <p><i class="fas fa-truck"></i> Você receberá o código de rastreio por e-mail</p>
+        </div>
+        <a href="index.html" class="btn-continue"><i class="fas fa-store"></i> Continuar comprando</a>
+        <div class="footer"><i class="fas fa-lock"></i> Pagamento 100% seguro | <i class="fas fa-headset"></i> Suporte 24h</div>
+    </div>
+    <script>
+        let orderData = JSON.parse(localStorage.getItem('orderData') || '{}');
+        document.getElementById('orderId').innerText = orderData.orderId || 'PENDENTE';
+    </script>
+</body>
+</html>
